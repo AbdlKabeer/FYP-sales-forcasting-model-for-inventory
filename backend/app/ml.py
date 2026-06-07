@@ -48,6 +48,13 @@ def generate_linear_forecast(df, days):
     future_ordinals = [[d.toordinal()] for d in future_dates]
 
     predictions = model.predict(future_ordinals)
+    
+    # Calculate training metrics
+    from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+    train_preds = model.predict(X)
+    rmse = np.sqrt(mean_squared_error(y, train_preds))
+    mae = mean_absolute_error(y, train_preds)
+    r2 = r2_score(y, train_preds)
 
     forecast = []
     for d, q in zip(future_dates, predictions):
@@ -55,7 +62,14 @@ def generate_linear_forecast(df, days):
             "date": datetime.combine(d, datetime.min.time()),
             "predicted_quantity": max(0, round(float(q), 2))
         })
-    return forecast
+    return {
+        "forecast": forecast,
+        "metrics": {
+            "training_rmse": round(float(rmse), 2),
+            "training_mae": round(float(mae), 2),
+            "r2_score": round(float(r2), 2)
+        }
+    }
 
 
 def generate_sarima_forecast(df, days):
@@ -75,8 +89,14 @@ def generate_sarima_forecast(df, days):
                         enforce_invertibility=False)
         model_fit = model.fit(disp=False)
 
-        # Forecast
         forecast_values = model_fit.forecast(steps=days)
+        
+        # Calculate training metrics
+        from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+        train_preds = model_fit.fittedvalues
+        rmse = np.sqrt(mean_squared_error(df['quantity'], train_preds))
+        mae = mean_absolute_error(df['quantity'], train_preds)
+        r2 = r2_score(df['quantity'], train_preds)
 
         last_date = df.index.max()
         future_dates = [last_date + timedelta(days=i)
@@ -88,6 +108,13 @@ def generate_sarima_forecast(df, days):
                 "date": d,
                 "predicted_quantity": max(0, round(float(q), 2))
             })
-        return forecast
+        return {
+            "forecast": forecast,
+            "metrics": {
+                "training_rmse": round(float(rmse), 2),
+                "training_mae": round(float(mae), 2),
+                "r2_score": round(float(r2), 2)
+            }
+        }
     except Exception as e:
         return {"error": f"SARIMA model failed: {str(e)}"}

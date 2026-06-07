@@ -60,7 +60,7 @@ def read_sales(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return sales
 
 
-@app.post("/forecast/", response_model=List[schemas.ForecastPoint])
+@app.post("/forecast/", response_model=schemas.ForecastResponse)
 def get_forecast(request: schemas.ForecastRequest, db: Session = Depends(get_db)):
     forecast_data = ml.generate_forecast(
         db, request.product_id, request.days, request.model_type)

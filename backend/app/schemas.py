@@ -77,3 +77,12 @@ class ForecastRequest(BaseModel):
 class ForecastPoint(BaseModel):
     date: datetime
     predicted_quantity: float
+
+class ForecastMetrics(BaseModel):
+    training_rmse: float
+    training_mae: float
+    r2_score: float
+
+class ForecastResponse(BaseModel):
+    forecast: List[ForecastPoint]
+    metrics: ForecastMetrics
