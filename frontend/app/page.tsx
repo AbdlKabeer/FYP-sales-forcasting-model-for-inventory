@@ -44,7 +44,7 @@ export default function Home() {
   // Fetch Products
   const loadProducts = async () => {
     try {
-      const data = await fetchAPI("/products/");
+      const data = await fetchAPI("products/");
       setProducts(data);
       if (data.length > 0 && selectedProductId === null) {
         setSelectedProductId(data[0].id);
@@ -64,7 +64,7 @@ export default function Home() {
       if (!selectedProductId) return;
       setLoading(true);
       try {
-        const data = await fetchAPI("/forecast/", {
+        const data = await fetchAPI("forecast/", {
           method: "POST",
           body: JSON.stringify({ product_id: selectedProductId, days: 7, model_type: modelType }),
         });
@@ -92,7 +92,7 @@ export default function Home() {
     };
 
     try {
-      const data = await fetchAPI("/products/", {
+      const data = await fetchAPI("products/", {
         method: "POST",
         body: JSON.stringify(prod),
       });
